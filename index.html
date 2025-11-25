@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OBS Remote Director</title>
+    <!-- Rimosso link Tailwind -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="header">
+        <h1 class="title">OBS Director Console</h1>
+        <div id="status" class="status-box">
+            Stato Connessione: Disconnesso - Premi "Connetti"
+        </div>
+    </div>
+
+    <!-- Sezione Connessione -->
+    <div class="config-panel">
+        <input type="text" id="obs-host" value="localhost" placeholder="Host OBS (es. localhost)" class="input-field" required>
+        <input type="number" id="obs-port" value="4455" placeholder="Porta (es. 4455)" class="input-field" required>
+        <input type="password" id="obs-password" value="mQIa65sm9gZte29s" placeholder="Password OBS (se impostata)" class="input-field">
+        <button id="btn-connect" class="action-btn connect-btn">Connetti</button>
+        <button id="btn-disconnect" disabled class="action-btn disconnect-btn">Disconnetti</button>
+    </div>
+
+    <!-- Contenitore Principale: Programma, Anteprima e Pulsanti Scena -->
+    <div class="main-layout">
+        <!-- Colonna Programma/Anteprima e Transizione -->
+        <div class="control-area">
+            <div class="scene-display program-display-style">
+                <h2 class="scene-label red-text">Programma (LIVE)</h2>
+                <p id="current-program-scene" class="scene-name red-text">Nessuna</p>
+            </div>
+            
+            <div class="scene-display preview-display-style">
+                <h2 class="scene-label green-text">Anteprima (PREVIEW)</h2>
+                <p id="current-preview-scene" class="scene-name green-text">Seleziona una Scena</p>
+            </div>
+            
+            <button id="btn-transition" disabled class="transition-btn">
+                TRANSIZIONE (Disabilitato)
+            </button>
+        </div>
+
+        <!-- Colonna Pulsanti Scene -->
+        <div class="scenes-list-panel">
+            <h2 class="section-title">Scene Disponibili</h2>
+            <div id="scenes-container" class="scene-buttons-container">
+                <p class="initial-message">Connettiti a OBS per caricare le scene.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Viste Proiettori Catturate -->
+    <div class="projector-views-section">
+        <h2 class="section-title">Monitor Proiettori Catturati</h2>
+        <div id="projector-views" class="projector-grid">
+             <p class="initial-message">Connettiti a OBS per avviare il monitoraggio dei proiettori.</p>
+        </div>
+    </div>
+
+    <!-- Inclusione del file Javascript del Renderer -->
+    <script src="renderer.js"></script>
+</body>
+</html>

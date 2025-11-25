@@ -1,0 +1,294 @@
+/* Importazione Font */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
+
+/* Stili Globali e Layout di Base */
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #1a1a2e; /* Sfondo scuro navy */
+    color: #e0e0e0;
+    padding: 24px;
+    margin: 0;
+}
+
+.header {
+    margin-bottom: 24px;
+    background-color: #2c2c44;
+    padding: 16px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    
+    /* Layout Header */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.title {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #4a90e2; /* Blu brillante */
+}
+
+.status-box {
+    font-size: 0.875rem;
+    font-weight: 600;
+    padding: 8px;
+    border-radius: 6px;
+    color: #fff;
+    text-align: center;
+    transition: background-color 0.3s;
+}
+
+/* Configurazione Connessione */
+.config-panel {
+    background-color: #2c2c44;
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    margin-bottom: 24px;
+    
+    display: grid;
+    /* 5 colonne per host, port, password, connect, disconnect */
+    grid-template-columns: 1fr 150px 1fr 150px 150px; 
+    gap: 16px;
+    align-items: flex-end;
+}
+
+.input-field {
+    padding: 12px;
+    border-radius: 8px;
+    background-color: #3e3e58;
+    border: 1px solid #5a5a70;
+    color: #e0e0e0;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Pulsanti Azione */
+.action-btn {
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s, box-shadow 0.2s;
+}
+
+.action-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.connect-btn {
+    background-color: #4a90e2;
+    color: #fff;
+}
+.connect-btn:hover:not([disabled]) {
+    background-color: #357bd1;
+}
+
+.disconnect-btn {
+    background-color: #e74c3c;
+    color: #fff;
+}
+.disconnect-btn:hover:not([disabled]) {
+    background-color: #c0392b;
+}
+
+/* Layout Principale Regia */
+.main-layout {
+    display: grid;
+    /* Due colonne principali: Controlli (3/4) e Scene (1/4) */
+    grid-template-columns: 3fr 1fr; 
+    gap: 24px;
+}
+
+.control-area {
+    /* 3/4 dello spazio, contiene Program, Preview e Transizione */
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.scenes-list-panel {
+    background-color: #2c2c44;
+    padding: 16px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #4a90e2;
+    margin-bottom: 16px;
+    border-bottom: 1px solid #4a4a60; /* Separatore */
+    padding-bottom: 8px;
+}
+
+.initial-message {
+    color: #a0a0c0;
+    padding: 16px 0;
+}
+
+/* Display Scene (Preview/Program) */
+.scene-display {
+    padding: 16px;
+    border-radius: 12px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.program-display-style {
+    background-color: #8b000030; /* Rosso scuro semi-trasparente */
+    border: 2px solid #8b0000;
+}
+
+.preview-display-style {
+    background-color: #00640030; /* Verde scuro semi-trasparente */
+    border: 2px solid #006400;
+}
+
+.scene-label {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #b0b0d0;
+    margin-bottom: 4px;
+}
+
+.scene-name {
+    font-size: 1.75rem;
+    font-weight: 900;
+}
+
+.red-text { color: #ff6347; } /* Rosso chiaro per Program */
+.green-text { color: #7fff00; } /* Verde acceso per Preview */
+
+/* Pulsante Transizione (Mantenuto per la struttura) */
+.transition-btn {
+    width: 100%;
+    padding: 16px;
+    border-radius: 8px;
+    background-color: #f39c12;
+    color: #1a1a2e;
+    font-weight: 800;
+    font-size: 1.25rem;
+    border: none;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.transition-btn:disabled {
+    background-color: #5a5a70;
+    color: #a0a0c0;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+/* Contenitore Pulsanti Scene */
+.scene-buttons-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Pulsanti Scena */
+.scene-btn {
+    width: 100%;
+    padding: 12px 16px;
+    text-align: left;
+    border-radius: 8px;
+    transition: background-color 0.2s, border-color 0.2s;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    border: 1px solid #4a4a60;
+    background-color: #3e3e58;
+    color: #e0e0e0;
+    cursor: pointer;
+}
+
+.scene-btn:hover {
+    background-color: #5a5a70;
+}
+
+/* Scena LIVE (Program) */
+.scene-btn.active-program {
+    background-color: #ff6347; /* Rosso Salmone */
+    border-color: #e74c3c;
+    color: #1a1a2e;
+    font-weight: 700;
+    box-shadow: 0 0 10px #ff6347;
+}
+
+/* Scena in ANTEPRIMA (Preview) */
+.scene-btn.active-preview {
+    background-color: #7fff00; /* Verde Chartreuse */
+    border-color: #006400;
+    color: #1a1a2e;
+    font-weight: 700;
+    box-shadow: 0 0 10px #7fff00;
+}
+
+/* ------------------------------------------------------------------ */
+/* STILI VISTE PROIETTORI (Nuova sezione) */
+/* ------------------------------------------------------------------ */
+
+.projector-views-section {
+    padding-top: 24px;
+    margin-top: 24px;
+    border-top: 1px solid #3e3e58;
+}
+
+.projector-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: flex-start;
+}
+
+.projector-card {
+    background-color: #2c2c44;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    /* Calcolo per 2 colonne, con margine di 20px */
+    width: calc(50% - 10px); 
+    box-sizing: border-box;
+}
+
+.projector-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #4a90e2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-bottom: 4px;
+    border-bottom: 1px solid #3e3e58;
+}
+
+.projector-video {
+    width: 100%;
+    height: auto;
+    min-height: 150px;
+    background-color: #1a1a2e;
+    border-radius: 4px;
+    border: 2px solid #5a5a70;
+    display: block;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+    .main-layout {
+        grid-template-columns: 1fr; /* Colonna singola su schermi più piccoli */
+    }
+
+    .projector-card {
+        width: 100%; /* Una colonna su mobile */
+    }
+
+    .config-panel {
+        /* Adatta la griglia a una colonna singola su mobile */
+        grid-template-columns: 1fr;
+    }
+}
