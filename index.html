@@ -3,64 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OBS Remote Director</title>
-    <!-- Rimosso link Tailwind -->
-    <link rel="stylesheet" href="styles.css">
+    <title>Regia Remota OBS</title>
+    <!-- Riferimento al file CSS esterno -->
+    <link rel="stylesheet" href="styles.css"> 
 </head>
 <body>
-    <div class="header">
-        <h1 class="title">OBS Director Console</h1>
-        <div id="status" class="status-box">
-            Stato Connessione: Disconnesso - Premi "Connetti"
-        </div>
-    </div>
 
-    <!-- Sezione Connessione -->
-    <div class="config-panel">
-        <input type="text" id="obs-host" value="localhost" placeholder="Host OBS (es. localhost)" class="input-field" required>
-        <input type="number" id="obs-port" value="4455" placeholder="Porta (es. 4455)" class="input-field" required>
-        <input type="password" id="obs-password" value="mQIa65sm9gZte29s" placeholder="Password OBS (se impostata)" class="input-field">
-        <button id="btn-connect" class="action-btn connect-btn">Connetti</button>
-        <button id="btn-disconnect" disabled class="action-btn disconnect-btn">Disconnetti</button>
-    </div>
+    <div class="container">
+        <header>
+            <h1 class="title">Regia Remota OBS</h1>
+            <div id="status" class="status-bar">Disconnesso</div>
+        </header>
 
-    <!-- Contenitore Principale: Programma, Anteprima e Pulsanti Scena -->
-    <div class="main-layout">
-        <!-- Colonna Programma/Anteprima e Transizione -->
-        <div class="control-area">
-            <div class="scene-display program-display-style">
-                <h2 class="scene-label red-text">Programma (LIVE)</h2>
-                <p id="current-program-scene" class="scene-name red-text">Nessuna</p>
-            </div>
+        
+        <!-- Sezione Monitor Principali e Controlli (Anteprima | Controlli | Programma) -->
+        <div class="monitor-grid">
             
-            <div class="scene-display preview-display-style">
-                <h2 class="scene-label green-text">Anteprima (PREVIEW)</h2>
-                <p id="current-preview-scene" class="scene-name green-text">Seleziona una Scena</p>
+            <!-- Monitor Anteprima (SINISTRA) -->
+            <div class="monitor-card preview-card">
+                <div class="monitor-header">
+                    <h3 class="monitor-label preview-label">ANTEPRIMA (Preview)</h3>
+                    <span id="current-preview-scene" class="monitor-badge preview-badge">Seleziona una Scena</span>
+                </div>
+                <div id="preview-video-container" class="aspect-ratio-16-9-wrapper">
+                    <p class="initial-message">Anteprima Proiettore</p>
+                </div>
             </div>
-            
-            <button id="btn-transition" disabled class="transition-btn">
-                TRANSIZIONE (Disabilitato)
-            </button>
+
+            <!-- Controlli Regia (CENTRALE) -->
+            <div class="regie-controls">
+                <!-- Pulsante principale: Take (transizione Preview -> Program) -->
+                <button id="btn-take" class="regie-control-button">
+                    TAKE
+                </button>
+
+                <!-- Selezione modalità di transizione -->
+                <div class="transition-mode-group">
+                    <button id="btn-transition-cut" class="btn-mode active-mode">
+                        Taglio
+                    </button>
+                    <button id="btn-transition-fade" class="btn-mode">
+                        Dissolvenza
+                    </button>
+                </div>
+
+                <!-- Eventuali altre info / descrizione -->
+                <p class="control-description">Seleziona la modalità di transizione prima di premere TAKE</p>
+            </div>
+
+            <!-- Monitor Programma (DESTRA) -->
+            <div class="monitor-card program-card">
+                <div class="monitor-header">
+                    <h3 class="monitor-label program-label">PROGRAMMA (Diretta)</h3>
+                    <span id="current-program-scene" class="monitor-badge program-badge">Nessuna</span>
+                </div>
+                <div id="program-video-container" class="aspect-ratio-16-9-wrapper">
+                    <p class="initial-message">Programma Proiettore</p>
+                </div>
+            </div>
+
         </div>
 
-        <!-- Colonna Pulsanti Scene -->
-        <div class="scenes-list-panel">
-            <h2 class="section-title">Scene Disponibili</h2>
-            <div id="scenes-container" class="scene-buttons-container">
-                <p class="initial-message">Connettiti a OBS per caricare le scene.</p>
+        <!-- Sezione Lista Scene (Card più grandi) -->
+        <div class="card scenes-card">
+            <h2 class="card-title">Lista Scene e Controlli</h2>
+            <div id="scenes-container" class="scenes-grid">
+                <p class="initial-message">Connettiti per caricare le scene...</p>
             </div>
         </div>
+        
+        <!-- Sezione Connessione (Spostata in basso e compatta) -->
+        <div class="card connection-card">
+            <h2 class="card-title">Configurazione Connessione OBS</h2>
+            <div class="connection-grid">
+                <input type="text" id="obs-host" value="127.0.0.1" placeholder="Host (es. 127.0.0.1)" class="input-field">
+                <input type="number" id="obs-port" value="4455" placeholder="Porta (es. 4455)" class="input-field">
+                <input type="password" id="obs-password" value="mQIa65sm9gZte29s" placeholder="Password (Opzionale)" class="input-field">
+                <button id="btn-connect" class="btn-connect">Connetti</button>
+            </div>
+        </div>
+        
+        <footer class="text-center">
+            Assicurati che OBS sia in esecuzione e che i proiettori di Programma e Anteprima siano aperti.
+        </footer>
     </div>
 
-    <!-- Viste Proiettori Catturate -->
-    <div class="projector-views-section">
-        <h2 class="section-title">Monitor Proiettori Catturati</h2>
-        <div id="projector-views" class="projector-grid">
-             <p class="initial-message">Connettiti a OBS per avviare il monitoraggio dei proiettori.</p>
-        </div>
-    </div>
-
-    <!-- Inclusione del file Javascript del Renderer -->
     <script src="renderer.js"></script>
 </body>
 </html>

@@ -1,294 +1,404 @@
-/* Importazione Font */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
-
-/* Stili Globali e Layout di Base */
-body {
-    font-family: 'Inter', sans-serif;
-    background-color: #1a1a2e; /* Sfondo scuro navy */
-    color: #e0e0e0;
-    padding: 24px;
-    margin: 0;
+:root {
+    --color-primary: #34495e; /* Grigio scuro/blu */
+    --color-secondary: #ecf0f1; /* Grigio chiaro */
+    --color-accent: #3498db; /* Blu vivo (per Dissolvenza/Modalità Attiva) */
+    --color-background: #2c3e50; /* Sfondo scuro */
+    --color-text-light: #ecf0f1;
+    --color-button-preview: #f39c12; /* Giallo/Arancione */
+    --color-button-program: #e74c3c; /* Rosso */
+    --color-status-ok: #27ae60; /* Verde */
+    --color-status-error: #c0392b; /* Rosso */
+    --color-status-connecting: #f39c12;
 }
 
-.header {
-    margin-bottom: 24px;
-    background-color: #2c2c44;
-    padding: 16px;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-    
-    /* Layout Header */
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--color-background);
+    color: var(--color-text-light);
+    margin: 0;
+    padding: 20px;
+    box-sizing: border-box;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding: 10px 0;
+    border-bottom: 2px solid var(--color-primary);
 }
 
 .title {
-    font-size: 2rem;
-    font-weight: 800;
-    color: #4a90e2; /* Blu brillante */
+    font-size: 2em;
+    font-weight: 700;
+    margin: 0;
+    color: var(--color-accent);
 }
 
-.status-box {
-    font-size: 0.875rem;
+/* ==================================== */
+/* 1. BARRA DI STATO COMPATTA (HEADER) */
+/* ==================================== */
+
+.status-bar {
+    padding: 5px 15px; /* Ridotto */
+    border-radius: 8px;
     font-weight: 600;
-    padding: 8px;
-    border-radius: 6px;
-    color: #fff;
+    color: white;
+    min-width: 150px;
     text-align: center;
-    transition: background-color 0.3s;
+    background-color: var(--color-status-error); /* Default Disconnesso */
+    transition: background-color 0.3s ease;
 }
 
-/* Configurazione Connessione */
-.config-panel {
-    background-color: #2c2c44;
-    padding: 24px;
+/* ==================================== */
+/* 5. SEZIONE CONNESSIONE (IN BASSO) */
+/* ==================================== */
+
+.connection-card {
+    order: 10; /* Sposta in fondo al container */
+    margin-top: 20px;
+    padding: 15px 20px; /* Più compatta */
+}
+
+.card {
+    background-color: var(--color-primary);
+    padding: 20px;
     border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-    margin-bottom: 24px;
-    
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.card-title {
+    font-size: 1.4em;
+    margin-top: 0;
+    margin-bottom: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 5px;
+}
+
+.connection-grid {
     display: grid;
-    /* 5 colonne per host, port, password, connect, disconnect */
-    grid-template-columns: 1fr 150px 1fr 150px 150px; 
-    gap: 16px;
-    align-items: flex-end;
+    grid-template-columns: 2fr 1fr 2fr 1fr;
+    gap: 10px;
+    align-items: center;
 }
 
 .input-field {
-    padding: 12px;
-    border-radius: 8px;
-    background-color: #3e3e58;
-    border: 1px solid #5a5a70;
-    color: #e0e0e0;
-    width: 100%;
-    box-sizing: border-box;
+    padding: 10px;
+    border: 1px solid #7f8c8d;
+    border-radius: 6px;
+    background-color: #34495e;
+    color: var(--color-text-light);
+    font-size: 1em;
 }
 
-/* Pulsanti Azione */
-.action-btn {
-    padding: 12px;
-    border-radius: 8px;
-    font-weight: 700;
+.btn-connect {
+    background-color: var(--color-accent);
+    color: white;
+    padding: 10px;
     border: none;
-    cursor: pointer;
-    transition: background-color 0.2s, box-shadow 0.2s;
-}
-
-.action-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    box-shadow: none;
-}
-
-.connect-btn {
-    background-color: #4a90e2;
-    color: #fff;
-}
-.connect-btn:hover:not([disabled]) {
-    background-color: #357bd1;
-}
-
-.disconnect-btn {
-    background-color: #e74c3c;
-    color: #fff;
-}
-.disconnect-btn:hover:not([disabled]) {
-    background-color: #c0392b;
-}
-
-/* Layout Principale Regia */
-.main-layout {
-    display: grid;
-    /* Due colonne principali: Controlli (3/4) e Scene (1/4) */
-    grid-template-columns: 3fr 1fr; 
-    gap: 24px;
-}
-
-.control-area {
-    /* 3/4 dello spazio, contiene Program, Preview e Transizione */
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
-.scenes-list-panel {
-    background-color: #2c2c44;
-    padding: 16px;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-}
-
-.section-title {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #4a90e2;
-    margin-bottom: 16px;
-    border-bottom: 1px solid #4a4a60; /* Separatore */
-    padding-bottom: 8px;
-}
-
-.initial-message {
-    color: #a0a0c0;
-    padding: 16px 0;
-}
-
-/* Display Scene (Preview/Program) */
-.scene-display {
-    padding: 16px;
-    border-radius: 12px;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
-}
-
-.program-display-style {
-    background-color: #8b000030; /* Rosso scuro semi-trasparente */
-    border: 2px solid #8b0000;
-}
-
-.preview-display-style {
-    background-color: #00640030; /* Verde scuro semi-trasparente */
-    border: 2px solid #006400;
-}
-
-.scene-label {
-    font-size: 1.125rem;
+    border-radius: 6px;
     font-weight: 600;
-    color: #b0b0d0;
-    margin-bottom: 4px;
-}
-
-.scene-name {
-    font-size: 1.75rem;
-    font-weight: 900;
-}
-
-.red-text { color: #ff6347; } /* Rosso chiaro per Program */
-.green-text { color: #7fff00; } /* Verde acceso per Preview */
-
-/* Pulsante Transizione (Mantenuto per la struttura) */
-.transition-btn {
-    width: 100%;
-    padding: 16px;
-    border-radius: 8px;
-    background-color: #f39c12;
-    color: #1a1a2e;
-    font-weight: 800;
-    font-size: 1.25rem;
-    border: none;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
     cursor: pointer;
     transition: background-color 0.2s;
 }
-.transition-btn:disabled {
-    background-color: #5a5a70;
-    color: #a0a0c0;
-    cursor: not-allowed;
-    box-shadow: none;
+
+.btn-connect:hover:not(:disabled) {
+    background-color: #2980b9;
 }
 
-/* Contenitore Pulsanti Scene */
-.scene-buttons-container {
+.btn-connect:disabled {
+    background-color: #7f8c8d;
+    cursor: not-allowed;
+}
+
+/* ==================================== */
+/* 2. SEZIONE MONITOR PRINCIPALI */
+/* ==================================== */
+
+.monitor-grid {
+    /* Proporzioni: 2.5 Anteprima | 0.8 Controlli | 2.5 Programma */
+    grid-template-columns: 2.5fr 0.8fr 2.5fr; 
+    display: grid;
+    gap: 20px;
+    align-items: start;
+}
+
+.monitor-card {
+    background-color: #1a2533; 
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.monitor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.monitor-label {
+    font-size: 1.1em;
+    font-weight: 700;
+    margin: 0;
+    text-transform: uppercase;
+}
+
+.monitor-badge {
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.9em;
+    font-weight: 600;
+    color: white;
+}
+
+.preview-label { color: var(--color-button-preview); }
+.preview-badge { background-color: var(--color-button-preview); }
+.program-label { color: var(--color-button-program); }
+.program-badge { background-color: var(--color-button-program); }
+
+
+.aspect-ratio-16-9-wrapper {
+    position: relative;
+    width: 100%;
+    height: 0;
+    padding-bottom: 56.25%; /* Rapporto 16:9 */
+    background-color: #000;
+    border-radius: 6px;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.initial-message {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #7f8c8d;
+    font-size: 1.2em;
+    text-align: center;
+    padding: 20px;
+}
+
+/* ==================================== */
+/* 3. CONTROLLI REGIA (Centrale e Compatta) */
+/* ==================================== */
+
+.regie-controls {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
+    padding: 15px;
+    text-align: center;
+    background-color: var(--color-primary);
+    border-radius: 10px;
+    align-self: center; /* Allineamento verticale */
 }
 
-/* Pulsanti Scena */
-.scene-btn {
-    width: 100%;
-    padding: 12px 16px;
-    text-align: left;
-    border-radius: 8px;
-    transition: background-color 0.2s, border-color 0.2s;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    border: 1px solid #4a4a60;
-    background-color: #3e3e58;
-    color: #e0e0e0;
-    cursor: pointer;
+.control-label {
+    font-size: 1em;
 }
 
-.scene-btn:hover {
-    background-color: #5a5a70;
-}
-
-/* Scena LIVE (Program) */
-.scene-btn.active-program {
-    background-color: #ff6347; /* Rosso Salmone */
-    border-color: #e74c3c;
-    color: #1a1a2e;
-    font-weight: 700;
-    box-shadow: 0 0 10px #ff6347;
-}
-
-/* Scena in ANTEPRIMA (Preview) */
-.scene-btn.active-preview {
-    background-color: #7fff00; /* Verde Chartreuse */
-    border-color: #006400;
-    color: #1a1a2e;
-    font-weight: 700;
-    box-shadow: 0 0 10px #7fff00;
-}
-
-/* ------------------------------------------------------------------ */
-/* STILI VISTE PROIETTORI (Nuova sezione) */
-/* ------------------------------------------------------------------ */
-
-.projector-views-section {
-    padding-top: 24px;
-    margin-top: 24px;
-    border-top: 1px solid #3e3e58;
-}
-
-.projector-grid {
+/* Gruppo per i pulsanti Dissolvenza/Taglio */
+.transition-mode-group {
     display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    justify-content: flex-start;
+    gap: 8px;
+    margin-bottom: 5px;
+    flex-direction: column; 
+    justify-content: center;
 }
 
-.projector-card {
-    background-color: #2c2c44;
-    padding: 10px;
+.divider {
+    height: 1px;
+    background-color: rgba(255, 255, 255, 0.15);
+    margin: 5px 0 10px 0;
+}
+
+.regie-control-button {
+    padding: 12px 10px;
+    border: none;
     border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-    /* Calcolo per 2 colonne, con margine di 20px */
-    width: calc(50% - 10px); 
-    box-sizing: border-box;
+    font-size: 1em;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+    color: white;
+    min-width: 100%;
 }
 
-.projector-title {
-    font-size: 1.1rem;
+/* Pulsanti di selezione modalità */
+.btn-mode {
+    flex: 1;
+    background-color: var(--color-primary); 
+    border: 2px solid transparent;
+    padding: 8px; 
+    font-weight: 500;
+    text-align: center;
+    border-radius: 6px;
+}
+
+.btn-mode:hover {
+    filter: brightness(1.2);
+}
+
+.active-mode {
+    border-color: var(--color-accent); /* Blue accent for active mode */
+    background-color: #496a8a; /* Slightly lighter primary color */
+    font-weight: 700;
+    box-shadow: 0 0 8px rgba(52, 152, 219, 0.5);
+}
+
+/* Pulsante principale "Take" */
+#btn-take {
+    background-color: var(--color-accent);
+}
+
+.regie-control-button:hover:not(:disabled) {
+    filter: brightness(1.1);
+}
+
+.regie-control-button:disabled {
+    background-color: #7f8c8d !important;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.control-description {
+    font-size: 0.8em;
+    color: #bdc3c7;
+    margin: 0;
+    padding-top: 5px;
+}
+
+/* ==================================== */
+/* 4. LISTA SCENE (Card più grandi) */
+/* ==================================== */
+
+.scenes-grid {
+    display: grid;
+    /* Card delle scene più grandi */
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); 
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.scene-item {
+    background-color: #2c3e50;
+    border-radius: 8px;
+    padding: 10px;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
+    border: 3px solid transparent;
+    transition: border-color 0.3s ease;
+}
+
+.scene-name-display {
+    font-size: 1.1em;
     font-weight: 600;
-    margin-bottom: 8px;
-    color: #4a90e2;
-    white-space: nowrap;
+    margin: 5px 0 10px 0;
+    color: var(--color-text-light);
+}
+
+.small-projector-view {
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.25%; /* 16:9 */
+    background-color: #1a2533;
+    border-radius: 4px;
     overflow: hidden;
-    text-overflow: ellipsis;
-    padding-bottom: 4px;
-    border-bottom: 1px solid #3e3e58;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .projector-video {
+    position: absolute;
     width: 100%;
-    height: auto;
-    min-height: 150px;
-    background-color: #1a1a2e;
-    border-radius: 4px;
-    border: 2px solid #5a5a70;
-    display: block;
+    height: 177.77%; /* Altezza necessaria per coprire la barra del titolo tramite il cropping hack in JS */
+    top: 0;
+    left: 0;
+    transform-origin: top left;
+    object-fit: cover;
 }
 
-/* Responsive adjustments */
+
+.active-program {
+    border-color: var(--color-button-program); /* Rosso per Programma */
+    box-shadow: 0 0 15px rgba(231, 76, 60, 0.8);
+}
+
+.active-preview {
+    border-color: var(--color-button-preview); /* Giallo/Arancione per Anteprima */
+    box-shadow: 0 0 15px rgba(243, 156, 18, 0.8);
+}
+
+.scene-button-group {
+    display: flex;
+    gap: 5px;
+    justify-content: center; /* Centra i pulsanti nel wrapper */
+    align-items: stretch; /* Pulsanti stessa altezza */
+    margin-top: 8px;
+}
+
+.scene-btn {
+    flex: 1;
+    padding: 8px 5px;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.85em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.scene-btn-preview {
+    background-color: var(--color-button-preview);
+}
+
+.scene-btn-program {
+    background-color: var(--color-button-program);
+}
+
+.scene-btn:hover {
+    opacity: 0.9;
+}
+
+footer {
+    color: #7f8c8d; 
+    text-align: center; 
+    font-size: 0.8em; 
+    margin-top: 20px;
+}
+
+/* ==================================== */
+/* MEDIA QUERIES (Responsive) */
+/* ==================================== */
+
 @media (max-width: 1024px) {
-    .main-layout {
-        grid-template-columns: 1fr; /* Colonna singola su schermi più piccoli */
+    .monitor-grid {
+        grid-template-columns: 1fr; /* Stack su schermi più piccoli */
     }
-
-    .projector-card {
-        width: 100%; /* Una colonna su mobile */
+    
+    .regie-controls {
+        order: 3; /* Posiziona i controlli in basso nello stack */
     }
-
-    .config-panel {
-        /* Adatta la griglia a una colonna singola su mobile */
+    
+    .connection-grid {
         grid-template-columns: 1fr;
+    }
+    
+    .title {
+        font-size: 1.5em;
     }
 }

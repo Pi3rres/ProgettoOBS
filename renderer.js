@@ -1,21 +1,18 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Elementi di Configurazione
+    // ---------------------------------------
+    // 1. ELEMENTI DOM
+    // ---------------------------------------
     const hostInput = document.getElementById('obs-host');
     const portInput = document.getElementById('obs-port');
     const passwordInput = document.getElementById('obs-password');
     const connectButton = document.getElementById('btn-connect');
-    
-    // Elementi di Stato e Controllo (Mantenuti per l'interfaccia)
     const statusElement = document.getElementById('status');
     const scenesListContainer = document.getElementById('scenes-container');
     const programSceneDisplay = document.getElementById('current-program-scene');
     const previewSceneDisplay = document.getElementById('current-preview-scene');
-
-    const projectorViewsContainer = document.getElementById('projector-views');
-
-    // Riferimenti ai pulsanti disabilitati in HTML ma necessari per JS (ora definiti)
-    const disconnectButton = document.getElementById('btn-disconnect');
-    const transitionButton = document.getElementById('btn-transition');
+    const previewVideoContainer = document.getElementById('preview-video-container');
+    const programVideoContainer = document.getElementById('program-video-container');
+    const transitionButton = document.getElementById('btn-take');
 
     // Stato locale
     let obsIsConnected = false;
@@ -23,61 +20,61 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentPreviewScene = null;
     let allScenes = [];
 
-    // ----------------------------------------------------
-    // 1. GESTIONE STATO UI
-    // ----------------------------------------------------
+    // Wrapper globale per tutte le piccole preview dei proiettori delle scene
+    let projectorViewsContainer = scenesListContainer;
 
-    // Funzione per aggiornare lo stato di connessione e l'interfaccia
+    // ---------------------------------------
+    // 2. FUNZIONI STATO UI
+    // ---------------------------------------
     const updateStatus = (status, message) => {
-        statusElement.textContent = `Stato Connessione: ${status} - ${message}`;
-        
         obsIsConnected = status === 'Connesso';
-        
-        // Aggiorna colori stato
+        statusElement.textContent = `Stato Connessione: ${status} - ${message}`;
+
         if (status === 'Connesso') {
-             statusElement.style.backgroundColor = '#28a745'; // Verde
+            statusElement.style.backgroundColor = '#28a745';
         } else if (status === 'Disconnesso') {
-             statusElement.style.backgroundColor = '#dc3545'; // Rosso
-             projectorViewsContainer.innerHTML = '<p class="initial-message" style="text-align: center;">Connettiti a OBS per avviare il monitoraggio dei proiettori.</p>';
-             statusElement.style.backgroundColor = '#ffc107'; // Giallo
+            statusElement.style.backgroundColor = '#dc3545';
+            projectorViewsContainer.innerHTML = '<p class="initial-message" style="text-align:center;">Connettiti a OBS per avviare il monitoraggio dei proiettori.</p>';
+        } else if (status === 'In Connessione') {
+            statusElement.style.backgroundColor = '#ffc107';
         }
-        
-        // Aggiorna stato pulsante di connessione (disconnessione e transizione sono sempre disabilitati)
+
         connectButton.disabled = obsIsConnected;
-        disconnectButton.disabled = true; // Sempre disabilitato per questa fase
-        transitionButton.disabled = true; // Sempre disabilitato per questa fase
-        transitionButton.textContent = 'TRANSIZIONE (Disabilitato)';
-        
-        console.log(`[RENDERER STATUS] Stato aggiornato a: ${status}`);
+        transitionButton.disabled = true;
+        transitionButton.textContent = 'TAKE (Disabilitato)';
     };
-    
-    // Aggiorna i nomi delle scene nei pannelli Preview/Program
+
     const updateSceneDisplays = (programSceneName, previewSceneName) => {
+        currentProgramScene = programSceneName;
+        currentPreviewScene = previewSceneName;
+
         programSceneDisplay.textContent = programSceneName || 'Nessuna';
-        // Se la Preview non è impostata, usa un testo predefinito
         previewSceneDisplay.textContent = previewSceneName || (obsIsConnected ? 'Seleziona una Scena' : 'Disconnesso');
-        
-        updateStatus(statusElement.textContent.includes('Connesso') ? 'Connesso' : 'Disconnesso', statusElement.textContent.split(' - ')[1]);
+
+        const canTransition = obsIsConnected && programSceneName && previewSceneName && programSceneName !== previewSceneName;
+        transitionButton.disabled = !canTransition;
+        if (canTransition) {
+            const trimmedSceneName = previewSceneName.length > 20 ? previewSceneName.substring(0,17)+'...' : previewSceneName;
+            transitionButton.textContent = `TAKE`;
+            transitionButton.style.backgroundColor = '#2ecc71';
+        } else {
+            transitionButton.textContent = 'TAKE (Disabilitato)';
+            transitionButton.style.backgroundColor = '';
+        }
     };
 
-    // ----------------------------------------------------
-    // 2. RENDERING SCENE E PROIETTORI
-    // ----------------------------------------------------
-
+    // ---------------------------------------
+    // 3. RENDERING SCENE
+    // ---------------------------------------
     const renderSceneButtons = (sceneData) => {
-        scenesListContainer.innerHTML = ''; // Pulisci prima di renderizzare
-        
-        
-        console.log('[RENDERER RENDER] Inizio rendering. Dati ricevuti:', sceneData);
-        
+        scenesListContainer.innerHTML = '';
+
         if (!sceneData || !sceneData.scenes || sceneData.scenes.length === 0) {
-            console.warn('[RENDERER RENDER] Nessun dato scena valido. Visualizzo messaggio di fallback.');
+            allScenes = [];
             currentProgramScene = null;
             currentPreviewScene = null;
-            allScenes = [];
             updateSceneDisplays(null, null);
-            
-            // CORREZIONE: Usiamo la classe CSS standard "initial-message"
+
             scenesListContainer.innerHTML = obsIsConnected 
                 ? '<p class="initial-message">Nessuna scena trovata in OBS.</p>'
                 : '<p class="initial-message">Connettiti a OBS per caricare le scene.</p>';
@@ -86,173 +83,225 @@ document.addEventListener('DOMContentLoaded', () => {
 
         allScenes = sceneData.scenes;
         currentProgramScene = sceneData.currentScene;
-        
-        console.log(`[RENDERER RENDER] Variabili aggiornate: Program='${currentProgramScene}', Totali=${allScenes.length}`);
-        
-        // Mantieni la Preview attuale a meno che non sia più valida
-        if (!allScenes.includes(currentPreviewScene)) {
-            currentPreviewScene = null;
-        }
 
-
-        allScenes.forEach((sceneName, index) => {
-
-            //window.api.openProjector(sceneName); 
-
-            console.log(`[RENDERER RENDER] Creazione pulsante per: ${sceneName} (Indice: ${index})`);
+        if (!allScenes.includes(currentPreviewScene)) currentPreviewScene = null;
+/*
+        allScenes.forEach(sceneName => {
+            const sceneItem = document.createElement('div');
+            sceneItem.classList.add('scene-item');
 
             const button = document.createElement('button');
             button.textContent = sceneName;
             button.classList.add('scene-btn');
-            
-            // Aggiungi classi di stato (Program/Preview) per lo styling
-            let sceneClass = '';
-            if (sceneName === currentProgramScene) {
-                sceneClass = 'active-program';
-            } else if (sceneName === currentPreviewScene) {
-                sceneClass = 'active-preview';
-            }
-            // Applica la classe corretta
-            if (sceneClass) {
-                button.classList.add(sceneClass);
-            }
-            
-            // Evento Click: Seleziona in Preview e apri Proiettore
-            button.addEventListener('click', () => {
-                if (!obsIsConnected) return; 
-                
-                console.log(`[RENDERER CLICK] Scena selezionata per Preview: ${sceneName}`);
 
-                // 1. Aggiorna lo stato locale della Preview
+            const sceneId = sceneName.replace(/\s/g, '-');
+            const projectorView = document.createElement('div');
+            projectorView.id = `scene-projector-${sceneId}`;
+            projectorView.classList.add('small-projector-view');
+            projectorView.innerHTML = '<p class="initial-message" style="padding:10px;font-size:0.9em;">Caricamento...</p>';
+
+            if (sceneName === currentProgramScene) button.classList.add('active-program');
+            else if (sceneName === currentPreviewScene) button.classList.add('active-preview');
+
+            button.addEventListener('click', () => {
+                if (!obsIsConnected) return;
+
                 currentPreviewScene = sceneName;
-                
-                // 2. Ridisegna i pulsanti per aggiornare gli stati (essenziale per rimuovere la classe 'active-preview' dalla scena precedente)
-                renderSceneButtons({ 
-                    scenes: allScenes,
-                    currentScene: currentProgramScene // Program non cambia al click in Preview
-                });
-                
-                // 3. Aggiorna i display
+                renderSceneButtons({ scenes: allScenes, currentScene: currentProgramScene });
                 updateSceneDisplays(currentProgramScene, currentPreviewScene);
             });
-            
-            scenesListContainer.appendChild(button);
+
+            sceneItem.appendChild(projectorView);
+            sceneItem.appendChild(button);
+            scenesListContainer.appendChild(sceneItem);
+        });*/
+
+        allScenes.forEach(sceneName => {
+            const sceneItem = document.createElement('div');
+            sceneItem.classList.add('scene-item');
+
+            // Wrapper proiettore
+            const sceneId = sceneName.replace(/\s/g, '-');
+            const projectorView = document.createElement('div');
+            projectorView.id = `scene-projector-${sceneId}`;
+            projectorView.classList.add('small-projector-view');
+            projectorView.innerHTML = '<p class="initial-message" style="padding:10px;font-size:0.9em;">Caricamento...</p>';
+
+            // Wrapper pulsanti
+            const buttonGroup = document.createElement('div');
+            buttonGroup.classList.add('scene-button-group');
+
+            // Pulsante Anteprima
+            const previewBtn = document.createElement('button');
+            previewBtn.textContent = 'Anteprima';
+            previewBtn.classList.add('scene-btn', 'scene-btn-preview');
+
+            // Pulsante Programma
+            const programBtn = document.createElement('button');
+            programBtn.textContent = 'Programma';
+            programBtn.classList.add('scene-btn', 'scene-btn-program');
+
+            // Evidenzia se scena è attiva
+            if (sceneName === currentProgramScene) programBtn.classList.add('active-program');
+            else if (sceneName === currentPreviewScene) previewBtn.classList.add('active-preview');
+
+            // Eventi click (temporanei, log di debug per ora)
+            previewBtn.addEventListener('click', () => {
+                console.log(`[DEBUG] Anteprima: ${sceneName}`);
+            });
+
+            programBtn.addEventListener('click', () => {
+                console.log(`[DEBUG] Programma: ${sceneName}`);
+            });
+
+            // Aggiungi pulsanti al gruppo
+            buttonGroup.appendChild(previewBtn);
+            buttonGroup.appendChild(programBtn);
+
+            // Aggiungi proiettore e pulsanti alla card della scena
+            sceneItem.appendChild(projectorView);
+            sceneItem.appendChild(buttonGroup);
+
+            // Aggiungi la scena al container
+            scenesListContainer.appendChild(sceneItem);
         });
 
-        // Dopo il rendering, aggiorna i display
         updateSceneDisplays(currentProgramScene, currentPreviewScene);
     };
 
+    // ---------------------------------------
+    // 4. CATTURA PROIETTORI E POSIZIONAMENTO
+    // ---------------------------------------
     const loadProjectorSources = async () => {
-        // Pulisci i video precedenti
-        projectorViewsContainer.innerHTML = '';
-        
+        previewVideoContainer.innerHTML = '<p class="initial-message">Anteprima Proiettore</p>';
+        programVideoContainer.innerHTML = '<p class="initial-message">Programma Proiettore</p>';
+        document.querySelectorAll('.small-projector-view').forEach(el => {
+            el.innerHTML = '<p class="initial-message" style="padding:10px;font-size:0.9em;">Caricamento...</p>';
+        });
+
         const result = await window.api.getProjectorSources();
-        
         if (!result.success || result.sources.length === 0) {
-             projectorViewsContainer.innerHTML = '<p class="initial-message" style="text-align: center;">Nessun proiettore OBS trovato. Assicurati che siano aperti.</p>';
-             console.warn('[RENDERER CAPTURER] Fallita cattura sorgenti o nessuna sorgente trovata.');
-             return;
+            projectorViewsContainer.innerHTML = '<p class="initial-message" style="text-align:center;">Nessun proiettore OBS trovato. Assicurati che siano aperti.</p>';
+            return;
         }
 
-        console.log(`[RENDERER CAPTURER] Trovati ${result.sources.length} proiettori. Avvio stream...`);
-
-        // Per ogni fonte trovata (Proiettore)
         for (const source of result.sources) {
             try {
-                // 1. Ottieni lo stream
+                let targetContainer = null;
+                const name = source.name.trim();
+                const lower = name.toLowerCase();
+
+                if (lower.includes('proiettore - programma')) targetContainer = programVideoContainer;
+                else if (lower.includes('proiettore - anteprima')) targetContainer = previewVideoContainer;
+                else if (lower.includes('proiettore - sorgente:')) {
+                    const sceneName = name.split(':')[1].trim();
+                    const sceneId = sceneName.replace(/\s/g, '-');
+                    targetContainer = document.getElementById(`scene-projector-${sceneId}`);
+                } else if (allScenes.some(s => name.includes(s))) {
+                    const matched = allScenes.find(s => name.includes(s));
+                    const sceneId = matched.replace(/\s/g, '-');
+                    targetContainer = document.getElementById(`scene-projector-${sceneId}`);
+                }
+
+                if (!targetContainer) continue;
+
                 const stream = await navigator.mediaDevices.getUserMedia({
-                    audio: false, // Nessun audio per i proiettori
-                    video: {
-                        mandatory: {
-                            // ID della fonte (finestra) ottenuto da desktopCapturer
-                            chromeMediaSource: 'desktop',
-                            chromeMediaSourceId: source.id, 
-                            minWidth: 100,
-                            maxWidth: 1920, // Max width for capture
-                            minHeight: 100,
-                            maxHeight: 1080
+                    audio:false,
+                    video:{
+                        mandatory:{
+                            chromeMediaSource:'desktop',
+                            chromeMediaSourceId:source.id,
+                            minWidth:100,
+                            maxWidth:1920,
+                            minHeight:100,
+                            maxHeight:1080
                         }
                     }
                 });
 
-                // 2. Crea l'elemento DOM (Contenitore + Titolo + Video)
-                const card = document.createElement('div');
-                card.classList.add('projector-card');
-                
-                const title = document.createElement('h3');
-                title.textContent = source.name.replace(' - Proiettore', ''); // Pulisci il nome
-                title.classList.add('projector-title');
-
+                const cropWrapper = document.createElement('div');
+                cropWrapper.style.top = '0';
+                cropWrapper.style.left = '0';
+                cropWrapper.style.width = '100%';
+                cropWrapper.style.height = '100%';         // prende tutta l’altezza del genitore 16:9
+                cropWrapper.style.overflow = 'hidden';
+                cropWrapper.style.display = 'flex';
+                cropWrapper.style.justifyContent = 'center';
+                cropWrapper.style.alignItems = 'center';
                 const video = document.createElement('video');
                 video.autoplay = true;
                 video.muted = true;
                 video.classList.add('projector-video');
-                
-                // 3. Assegna lo stream al tag video
                 video.srcObject = stream;
+                video.style.position = 'absolute';
+                video.style.overflow= "hidden";
+                video.style.top = '0';
+                video.style.left = '50%';
+                video.style.transform = 'translateX(-50%)';
+                video.style.objectFit = 'cover';
+                video.style.width = '100%';
+                video.style.height = 'auto';
 
-                // 4. Aggiungi alla card e al contenitore principale
-                card.appendChild(title);
-                card.appendChild(video);
-                projectorViewsContainer.appendChild(card);
-                
-                console.log(`[RENDERER CAPTURER] Stream avviato per: ${source.name}`);
+                video.onloadedmetadata = function() {
+                    const W = video.videoWidth;
+                    const H = video.videoHeight;
+                    const H16_9 = W*(9/16);
+                    const Htitle = H - H16_9;
+                    if(Htitle>0) {
+                        const perc = (Htitle/H16_9)*100;
+                        video.style.transform = `translate(-50%, -${perc}%)`;
+                    }
+                };
 
-            } catch (error) {
-                console.error(`[RENDERER CAPTURER] Errore nell'ottenere stream per ${source.name}:`, error);
+                cropWrapper.appendChild(video);
+                targetContainer.innerHTML = '';
+                targetContainer.appendChild(cropWrapper);
+
+            } catch (err) {
+                console.error(`Errore cattura stream ${source.name}:`, err);
             }
         }
     };
-    
-    // ----------------------------------------------------
-    // 3. GESTIONE EVENTI FORM E REGIA
-    // ----------------------------------------------------
 
-    // Evento Click: Connetti
+    // ---------------------------------------
+    // 5. EVENTI FORM
+    // ---------------------------------------
     connectButton.addEventListener('click', async () => {
-        console.log('[RENDERER INIT] Click su connetti.');
         const config = {
             host: hostInput.value,
-            port: parseInt(portInput.value, 10),
+            port: parseInt(portInput.value,10),
             password: passwordInput.value
         };
-        
-        // LOG INIZIALE
-        console.log(`[RENDERER CONNECT] Tentativo di connessione con: ${config.host}:${config.port}`);
-
-        updateStatus('In Connessione', 'In attesa di risposta da OBS...');
+        updateStatus('In Connessione','In attesa di risposta da OBS...');
         connectButton.disabled = true;
 
         const result = await window.api.connectToObs(config);
-        
-        if (!result.success) {
-            console.error(`[RENDERER CONNECT] Connessione fallita. Messaggio: ${result.message}`);
-            updateStatus('Disconnesso', `Connessione fallita: ${result.message}`);
-        } else {
-            console.log(`[RENDERER CONNECT] Connessione riuscita.`);
-            
-        }
+        if(!result.success) updateStatus('Disconnesso', `Connessione fallita: ${result.message}`);
     });
 
-    // ----------------------------------------------------
-    // 4. SOTTOSCRIZIONE EVENTI (Feedback da Main Process)
-    // ----------------------------------------------------
-    
-    // Inizializzazione degli ascoltatori di eventi
-    window.api.onObsStatusUpdate(updateStatus);
-    
-    window.api.onSceneListUpdate((sceneData) => {
-        
-        console.log('[RENDERER IPC] Evento scena ricevuto dal Main Process.');
-        // Il log dettagliato dei dati avviene all'interno di renderSceneButtons
-        renderSceneButtons(sceneData);
-        setTimeout(() => {
-             console.log('[RENDERER CAPTURER] Tentativo di caricare le fonti dopo un ritardo (1500ms)...');
-             loadProjectorSources(); 
-        }, 1500);
+    transitionButton.addEventListener('click', async () => {
+        if(!obsIsConnected || !currentPreviewScene || currentPreviewScene===currentProgramScene) return;
+        transitionButton.disabled=true;
+        const result = await window.api.doTransition(currentPreviewScene);
+        if(!result.success) transitionButton.disabled=false;
     });
-    console.log('[RENDERER INIT] Listeners IPC registrati.');
+
+    // ---------------------------------------
+    // 6. EVENTI IPC
+    // ---------------------------------------
+    window.api.onObsStatusUpdate(updateStatus);
+
+    window.api.onSceneListUpdate((sceneData)=>{
+        renderSceneButtons(sceneData);
+        setTimeout(loadProjectorSources,1500);
+    });
+
+    window.api.onProgramSceneChanged((newSceneName)=>{
+        currentProgramScene=newSceneName;
+        currentPreviewScene=null;
+        renderSceneButtons({ scenes: allScenes, currentScene: currentProgramScene, previewScene: currentPreviewScene });
+    });
+
     // Stato iniziale
-    updateStatus('Disconnesso', 'Premi "Connetti" per avviare la regia.');
+    updateStatus('Disconnesso','Premi "Connetti" per avviare la regia.');
 });
