@@ -334,12 +334,12 @@ header {
 
 
 .active-program {
-    border-color: var(--color-button-program); /* Rosso per Programma */
+    background-color: var(--color-button-program);
     box-shadow: 0 0 15px rgba(231, 76, 60, 0.8);
 }
 
 .active-preview {
-    border-color: var(--color-button-preview); /* Giallo/Arancione per Anteprima */
+    background-color: var(--color-button-preview);
     box-shadow: 0 0 15px rgba(243, 156, 18, 0.8);
 }
 
@@ -363,11 +363,13 @@ header {
 }
 
 .scene-btn-preview {
-    background-color: var(--color-button-preview);
+    border-color: var(--color-button-preview); /* Giallo/Arancione per Anteprima */
+    
 }
 
 .scene-btn-program {
-    background-color: var(--color-button-program);
+    border-color: var(--color-button-program); /* Rosso per Programma */
+    
 }
 
 .scene-btn:hover {

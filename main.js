@@ -136,11 +136,13 @@ async function handleGetSceneList() {
         // GetSceneList è il nome della request nel protocollo v5
         const resp = await obs.call('GetSceneList');
         const currentProgramSceneName = resp.currentProgramSceneName || resp.currentScene || null;
+        const currentPreviewSceneName = resp.currentPreviewSceneName || null;
         const scenes = resp.scenes || [];
         const sceneNames = scenes.map(s => s.sceneName);
 
         const sceneDataToSend = {
             currentScene: currentProgramSceneName,
+            previewScene: currentPreviewSceneName,
             scenes: sceneNames
         };
 
@@ -187,6 +189,16 @@ async function handleOpenAllProjectors(sceneNames = []) {
     }
 
     // Apri Preview
+    let studioStatus = { studioModeEnabled: false };
+
+    try {
+        studioStatus = await obs.call('GetStudioModeEnabled');
+    } catch (e) {
+        console.warn('[MAIN] Impossibile ottenere studio mode status:', e?.message || e);
+    }
+
+    console.log('Studio Mode status:', studioStatus);
+
     try {
         await obs.call('OpenVideoMixProjector', {
             videoMixType: 'OBS_WEBSOCKET_VIDEO_MIX_TYPE_PREVIEW',
@@ -257,18 +269,21 @@ ipcMain.handle('obs:transition', async (_, previewSceneName) => {
 
     try {
         // Verifica se Studio Mode è attivo
-        let studioStatus = { studioMode: false };
+        let studioStatus = { studioModeEnabled: false };
+
         try {
-            studioStatus = await obs.call('GetStudioModeStatus');
+            studioStatus = await obs.call('GetStudioModeEnabled');
         } catch (e) {
-            // Se la request non è supportata o fallisce, prosegui con SetCurrentProgramScene
-            console.warn('[MAIN] Impossibile ottenere studio mode status:', e && e.message ? e.message : e);
+            console.warn('[MAIN] Impossibile ottenere studio mode status:', e?.message || e);
         }
 
-        if (studioStatus && studioStatus.studioMode) {
+        console.log('Studio Mode status:', studioStatus);
+
+        if (studioStatus && studioStatus.studioModeEnabled) {
             // Se Studio Mode attivo, il comando TriggerStudioModeTransition esegue la transizione tra Preview e Program
             try {
                 await obs.call('TriggerStudioModeTransition');
+                console.log(`Transizione Studio Mode`);
                 return { success: true };
             } catch (err) {
                 console.warn('[MAIN] TriggerStudioModeTransition fallito, proverò a impostare Program direttamente:', err);

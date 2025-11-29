@@ -13,12 +13,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const previewVideoContainer = document.getElementById('preview-video-container');
     const programVideoContainer = document.getElementById('program-video-container');
     const transitionButton = document.getElementById('btn-take');
+    const cutButton = document.getElementById('btn-transition-cut');
+    const fadeButton = document.getElementById('btn-transition-fade');
 
     // Stato locale
     let obsIsConnected = false;
     let currentProgramScene = null;
     let currentPreviewScene = null;
+    let currentTransition = "Cut"
     let allScenes = [];
+
+    let sceneButtonsRendered = false;
 
     // Wrapper globale per tutte le piccole preview dei proiettori delle scene
     let projectorViewsContainer = scenesListContainer;
@@ -45,8 +50,8 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const updateSceneDisplays = (programSceneName, previewSceneName) => {
-        currentProgramScene = programSceneName;
-        currentPreviewScene = previewSceneName;
+        //currentProgramScene = programSceneName;
+        //currentPreviewScene = previewSceneName;
 
         programSceneDisplay.textContent = programSceneName || 'Nessuna';
         previewSceneDisplay.textContent = previewSceneName || (obsIsConnected ? 'Seleziona una Scena' : 'Disconnesso');
@@ -67,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 3. RENDERING SCENE
     // ---------------------------------------
     const renderSceneButtons = (sceneData) => {
-        scenesListContainer.innerHTML = '';
+        
 
         if (!sceneData || !sceneData.scenes || sceneData.scenes.length === 0) {
             allScenes = [];
@@ -83,45 +88,55 @@ document.addEventListener('DOMContentLoaded', () => {
 
         allScenes = sceneData.scenes;
         currentProgramScene = sceneData.currentScene;
+        currentPreviewScene = sceneData.previewScene;
+        if (sceneButtonsRendered) {
+            // Aggiorna evidenziazione Program/Preview senza ricreare nulla
+            allScenes.forEach(sceneName => {
+                const sceneId = sceneName.replace(/\s/g, '-');
 
-        if (!allScenes.includes(currentPreviewScene)) currentPreviewScene = null;
-/*
-        allScenes.forEach(sceneName => {
-            const sceneItem = document.createElement('div');
-            sceneItem.classList.add('scene-item');
+                // Trova pulsanti relativi a questa scena
+                const previewBtn = scenesListContainer.querySelector(
+                    `#scene-projector-${sceneId} ~ .scene-button-group .scene-btn-preview`
+                );
+                const programBtn = scenesListContainer.querySelector(
+                    `#scene-projector-${sceneId} ~ .scene-button-group .scene-btn-program`
+                );
 
-            const button = document.createElement('button');
-            button.textContent = sceneName;
-            button.classList.add('scene-btn');
+                if (!previewBtn || !programBtn) return;
 
-            const sceneId = sceneName.replace(/\s/g, '-');
-            const projectorView = document.createElement('div');
-            projectorView.id = `scene-projector-${sceneId}`;
-            projectorView.classList.add('small-projector-view');
-            projectorView.innerHTML = '<p class="initial-message" style="padding:10px;font-size:0.9em;">Caricamento...</p>';
+                // Reset classi
+                previewBtn.classList.remove('active-preview');
+                programBtn.classList.remove('active-program');
 
-            if (sceneName === currentProgramScene) button.classList.add('active-program');
-            else if (sceneName === currentPreviewScene) button.classList.add('active-preview');
-
-            button.addEventListener('click', () => {
-                if (!obsIsConnected) return;
-
-                currentPreviewScene = sceneName;
-                renderSceneButtons({ scenes: allScenes, currentScene: currentProgramScene });
-                updateSceneDisplays(currentProgramScene, currentPreviewScene);
+                // Imposta classi per la scena giusta
+                if (sceneName === currentProgramScene) {
+                    programBtn.classList.add('active-program');
+                } 
+                if (sceneName === currentPreviewScene) {
+                    previewBtn.classList.add('active-preview');
+                }
             });
 
-            sceneItem.appendChild(projectorView);
-            sceneItem.appendChild(button);
-            scenesListContainer.appendChild(sceneItem);
-        });*/
+            return;
+        }
+
+        
+        scenesListContainer.innerHTML = '';
 
         allScenes.forEach(sceneName => {
             const sceneItem = document.createElement('div');
             sceneItem.classList.add('scene-item');
 
-            // Wrapper proiettore
+            
             const sceneId = sceneName.replace(/\s/g, '-');
+
+
+            // Nome della scena
+            const sceneLabel = document.createElement('div');
+            sceneLabel.classList.add('scene-name-display'); // puoi riusare la tua classe CSS
+            sceneLabel.textContent = sceneName;
+
+            // Wrapper proiettore
             const projectorView = document.createElement('div');
             projectorView.id = `scene-projector-${sceneId}`;
             projectorView.classList.add('small-projector-view');
@@ -145,13 +160,45 @@ document.addEventListener('DOMContentLoaded', () => {
             if (sceneName === currentProgramScene) programBtn.classList.add('active-program');
             else if (sceneName === currentPreviewScene) previewBtn.classList.add('active-preview');
 
-            // Eventi click (temporanei, log di debug per ora)
-            previewBtn.addEventListener('click', () => {
-                console.log(`[DEBUG] Anteprima: ${sceneName}`);
-            });
+            
+            previewBtn.addEventListener('click', async () => {
+                if (currentPreviewScene === sceneName) return;
 
-            programBtn.addEventListener('click', () => {
-                console.log(`[DEBUG] Programma: ${sceneName}`);
+                const result = await window.api.setPreviewScene(sceneName);
+                if (!result.success) return;
+
+                // Aggiorna i dati locali
+                currentPreviewScene = sceneName;
+
+                // RICHIEDI SOLO L’AGGIORNAMENTO DELLA UI
+                renderSceneButtons({
+                    scenes: allScenes,
+                    currentScene: currentProgramScene,
+                    previewScene: currentPreviewScene
+                });
+            });
+            
+            
+
+            programBtn.addEventListener('click', async () => {
+                if (currentProgramScene === sceneName) return; 
+
+                
+                const result = await window.api.setProgramScene(sceneName);
+                if (!result.success) {
+                    console.error(`[ERROR] Impossibile mandare in Programma: ${sceneName}`);
+                    return;
+                }
+
+                // Aggiorna i dati locali
+                currentProgramScene = sceneName;
+
+                // Aggiorna solo la UI, senza toccare i proiettori
+                renderSceneButtons({
+                    scenes: allScenes,
+                    currentScene: currentProgramScene,
+                    previewScene: currentPreviewScene
+                });
             });
 
             // Aggiungi pulsanti al gruppo
@@ -159,12 +206,15 @@ document.addEventListener('DOMContentLoaded', () => {
             buttonGroup.appendChild(programBtn);
 
             // Aggiungi proiettore e pulsanti alla card della scena
+            sceneItem.appendChild(sceneLabel);
             sceneItem.appendChild(projectorView);
             sceneItem.appendChild(buttonGroup);
 
             // Aggiungi la scena al container
             scenesListContainer.appendChild(sceneItem);
         });
+
+        sceneButtonsRendered = true;
 
         updateSceneDisplays(currentProgramScene, currentPreviewScene);
     };
@@ -286,6 +336,27 @@ document.addEventListener('DOMContentLoaded', () => {
         if(!result.success) transitionButton.disabled=false;
     });
 
+    cutButton.addEventListener('click', () => {
+        if (currentTransition === "Cut") return;
+        
+
+        cutButton.classList.add("active-mode");
+        fadeButton.classList.remove("active-mode");
+
+        currentTransition = "Cut";
+        console.log(`Current transition: ${currentTransition}`);
+    });
+
+    fadeButton.addEventListener('click', () => {
+        if (currentTransition === "Fade") return;
+
+        fadeButton.classList.add("active-mode");
+        cutButton.classList.remove("active-mode");
+
+        currentTransition = "Fade";
+        console.log(`Current transition: ${currentTransition}`);
+    });
+
     // ---------------------------------------
     // 6. EVENTI IPC
     // ---------------------------------------
@@ -296,12 +367,29 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(loadProjectorSources,1500);
     });
 
-    window.api.onProgramSceneChanged((newSceneName)=>{
-        currentProgramScene=newSceneName;
-        currentPreviewScene=null;
-        renderSceneButtons({ scenes: allScenes, currentScene: currentProgramScene, previewScene: currentPreviewScene });
+    window.api.onProgramSceneChanged((newSceneName) => {
+        currentProgramScene = newSceneName;
+
+        renderSceneButtons({
+            scenes: allScenes,
+            currentScene: currentProgramScene,
+            previewScene: currentPreviewScene
+        });
+
+        updateSceneDisplays(currentProgramScene, currentPreviewScene);
     });
 
+    window.api.onPreviewSceneChanged((newSceneName) => {
+        currentPreviewScene = newSceneName;
+
+        renderSceneButtons({
+            scenes: allScenes,
+            currentScene: currentProgramScene,
+            previewScene: currentPreviewScene
+        });
+
+        updateSceneDisplays(currentProgramScene, currentPreviewScene);
+    });
     // Stato iniziale
     updateStatus('Disconnesso','Premi "Connetti" per avviare la regia.');
 });
