@@ -302,6 +302,31 @@ ipcMain.handle('obs:transition', async (_, previewSceneName) => {
     }
 });
 
+ipcMain.handle('obs:setTransition', async (_, transitionName) => {
+    if (!obsConnected) return { success: false, message: "OBS non connesso" };
+
+    try {
+        await obs.call('SetCurrentSceneTransition', { transitionName });
+        console.log(`[MAIN] Transizione impostata: ${transitionName}`);
+        return { success: true };
+    } catch (error) {
+        console.error("[MAIN] Errore SetCurrentSceneTransition:", error);
+        return { success: false, message: error?.message || String(error) };
+    }
+});
+
+ipcMain.handle('obs:getTransitions', async () => {
+    if (!obsConnected) return { success: false, transitions: [] };
+
+    try {
+        const list = await obs.call('GetSceneTransitionList');
+        return { success: true, transitions: list.transitions };
+    } catch (error) {
+        console.error('Errore GetSceneTransitionList:', error);
+        return { success: false, transitions: [] };
+    }
+});
+
 // =================================================================
 //  desktopCapturer: ricerca proiettori OBS (più robusta / multi-lingua)
 // =================================================================

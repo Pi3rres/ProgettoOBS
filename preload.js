@@ -15,6 +15,8 @@ contextBridge.exposeInMainWorld('api', {
     doTransition: (previewSceneName) => ipcRenderer.invoke('obs:transition', previewSceneName),
     setPreviewScene: (sceneName) => ipcRenderer.invoke('obs:setPreviewScene', sceneName),
     setProgramScene: (sceneName) => ipcRenderer.invoke('obs:setProgramScene', sceneName),
+    setTransition: (transitionName) => ipcRenderer.invoke('obs:setTransition', transitionName),
+    getTransitions: () => ipcRenderer.invoke('obs:getTransitions'),
 
     // Event listeners (dal main -> renderer)
     onObsStatusUpdate: (callback) => {

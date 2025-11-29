@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let obsIsConnected = false;
     let currentProgramScene = null;
     let currentPreviewScene = null;
-    let currentTransition = "Cut"
+    let currentTransition = "Dissolvenza"
     let allScenes = [];
 
     let sceneButtonsRendered = false;
@@ -37,6 +37,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (status === 'Connesso') {
             statusElement.style.backgroundColor = '#28a745';
+            (async () => {
+                const result = await window.api.getTransitions();
+                console.log("Transizioni disponibili:", result.transitions);
+            })();
         } else if (status === 'Disconnesso') {
             statusElement.style.backgroundColor = '#dc3545';
             projectorViewsContainer.innerHTML = '<p class="initial-message" style="text-align:center;">Connettiti a OBS per avviare il monitoraggio dei proiettori.</p>';
@@ -336,24 +340,36 @@ document.addEventListener('DOMContentLoaded', () => {
         if(!result.success) transitionButton.disabled=false;
     });
 
-    cutButton.addEventListener('click', () => {
-        if (currentTransition === "Cut") return;
+    cutButton.addEventListener('click', async () => {
+        if (currentTransition === "Taglio") return;
         
+        const result = await window.api.setTransition("Taglio");
+        if (!result.success) {
+            console.error("[ERROR] Impossibile impostare transizione Taglio:", result.message);
+            return;
+        }
+
 
         cutButton.classList.add("active-mode");
         fadeButton.classList.remove("active-mode");
 
-        currentTransition = "Cut";
+        currentTransition = "Taglio";
         console.log(`Current transition: ${currentTransition}`);
     });
 
-    fadeButton.addEventListener('click', () => {
-        if (currentTransition === "Fade") return;
+    fadeButton.addEventListener('click', async () => {
+        if (currentTransition === "Dissolvenza") return;
+
+        const result = await window.api.setTransition("Dissolvenza");
+        if (!result.success) {
+            console.error("[ERROR] Impossibile impostare transizione Dissolvenza:", result.message);
+            return;
+        }
 
         fadeButton.classList.add("active-mode");
         cutButton.classList.remove("active-mode");
 
-        currentTransition = "Fade";
+        currentTransition = "Dissolvenza";
         console.log(`Current transition: ${currentTransition}`);
     });
 
