@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
             })();
         } else if (status === 'Disconnesso') {
             statusElement.style.backgroundColor = '#dc3545';
-            projectorViewsContainer.innerHTML = '<p class="initial-message" style="text-align:center;">Connettiti a OBS per avviare il monitoraggio dei proiettori.</p>';
+            projectorViewsContainer.innerHTML = '<p  style="text-align:center;">Connettiti a OBS per avviare il monitoraggio dei proiettori.</p>';
         } else if (status === 'In Connessione') {
             statusElement.style.backgroundColor = '#ffc107';
         }

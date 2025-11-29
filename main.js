@@ -7,11 +7,12 @@ const obs = new OBSWebSocket();
 // Stato locale della connessione
 let obsConnected = false;
 let mainWindow = null;
+let debugMode = false;
 
 function createWindow () {
     mainWindow = new BrowserWindow({
-        width: 1200,
-        height: 800,
+        width: 1440,
+        height: 1200,
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
             nodeIntegration: false,
@@ -20,7 +21,7 @@ function createWindow () {
     });
 
     mainWindow.loadFile('index.html');
-    mainWindow.webContents.openDevTools();
+    if (debugMode) mainWindow.webContents.openDevTools();
 }
 
 // Helper: invia stato al renderer

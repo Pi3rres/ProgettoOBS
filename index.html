@@ -62,7 +62,24 @@
                 </div>
             </div>
 
+            <!-- Controllo output -->
+            <div class="broadcast-controls">
+                <h3 class="broadcast-title">Broadcast</h3>
+                <div class="broadcast-status">
+                    <span id="recording-status" class="status-indicator">● Non attivo</span>
+                </div>
+                <div class="broadcast-buttons">
+                    <button id="btn-start-recording" class="broadcast-btn">Registra</button>
+                    <button id="btn-start-stream" class="broadcast-btn">Diretta</button>
+                    <button id="btn-virtual-cam" class="broadcast-btn">Virtual Cam</button>
+                </div>
+            </div>
+    </div>
+
+
         </div>
+
+        
 
         <!-- Sezione Lista Scene (Card più grandi) -->
         <div class="card scenes-card">
@@ -74,7 +91,7 @@
         
         <!-- Sezione Connessione (Spostata in basso e compatta) -->
         <div class="card connection-card">
-            <h2 class="card-title">Configurazione Connessione OBS</h2>
+            <h2 class="card-title">Connessione OBS</h2>
             <div class="connection-grid">
                 <input type="text" id="obs-host" value="127.0.0.1" placeholder="Host (es. 127.0.0.1)" class="input-field">
                 <input type="number" id="obs-port" value="4455" placeholder="Porta (es. 4455)" class="input-field">
@@ -84,7 +101,7 @@
         </div>
         
         <footer class="text-center">
-            Assicurati che OBS sia in esecuzione e che i proiettori di Programma e Anteprima siano aperti.
+            Progetto frontend regia OBS
         </footer>
     </div>
 

@@ -19,6 +19,7 @@ body {
     padding: 20px;
     box-sizing: border-box;
     line-height: 1.6;
+    height: 100%;
 }
 
 .container {
@@ -26,7 +27,9 @@ body {
     margin: 0 auto;
     display: flex;
     flex-direction: column;
+    flex: 1;  
     gap: 20px;
+    height: 100%;
 }
 
 header {
@@ -60,76 +63,18 @@ header {
 }
 
 /* ==================================== */
-/* 5. SEZIONE CONNESSIONE (IN BASSO) */
-/* ==================================== */
-
-.connection-card {
-    order: 10; /* Sposta in fondo al container */
-    margin-top: 20px;
-    padding: 15px 20px; /* Più compatta */
-}
-
-.card {
-    background-color: var(--color-primary);
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-}
-
-.card-title {
-    font-size: 1.4em;
-    margin-top: 0;
-    margin-bottom: 15px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    padding-bottom: 5px;
-}
-
-.connection-grid {
-    display: grid;
-    grid-template-columns: 2fr 1fr 2fr 1fr;
-    gap: 10px;
-    align-items: center;
-}
-
-.input-field {
-    padding: 10px;
-    border: 1px solid #7f8c8d;
-    border-radius: 6px;
-    background-color: #34495e;
-    color: var(--color-text-light);
-    font-size: 1em;
-}
-
-.btn-connect {
-    background-color: var(--color-accent);
-    color: white;
-    padding: 10px;
-    border: none;
-    border-radius: 6px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-.btn-connect:hover:not(:disabled) {
-    background-color: #2980b9;
-}
-
-.btn-connect:disabled {
-    background-color: #7f8c8d;
-    cursor: not-allowed;
-}
-
-/* ==================================== */
 /* 2. SEZIONE MONITOR PRINCIPALI */
 /* ==================================== */
 
 .monitor-grid {
-    /* Proporzioni: 2.5 Anteprima | 0.8 Controlli | 2.5 Programma */
-    grid-template-columns: 2.5fr 0.8fr 2.5fr; 
     display: grid;
+    /* Proporzioni: 2.5 Anteprima | 0.8 Controlli | 2.5 Programma */
+    grid-template-columns: 2.5fr 0.8fr 2.5fr 0.8fr; 
+    
     gap: 20px;
     align-items: start;
+    flex-shrink: 0;
+    height: 35%;
 }
 
 .monitor-card {
@@ -285,12 +230,22 @@ header {
 /* 4. LISTA SCENE (Card più grandi) */
 /* ==================================== */
 
+
+.scenes-card {
+    
+    flex: 1 1 auto; /* Occupa tutto lo spazio disponibile */
+    display: flex;
+    flex-direction: column;
+}
+
 .scenes-grid {
     display: grid;
-    /* Card delle scene più grandi */
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); 
+    grid-template-columns: repeat(auto-fit, minmax(180px, 350px)); 
+    justify-content: center;
     gap: 15px;
     margin-top: 15px;
+    flex: 1 1 auto;  
+    /*overflow-y: auto;*/
 }
 
 .scene-item {
@@ -376,12 +331,156 @@ header {
     opacity: 0.9;
 }
 
+/* ==================================== */
+/* 5. SEZIONE CONTROLLI A DESTRA        */
+/* ==================================== */
+
+/* Sidebar broadcast a destra */
+.broadcast-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px;
+    background-color: var(--color-primary);
+    border-radius: 10px;
+}
+
+.broadcast-title {
+    font-size: 1.1em;
+    font-weight: 700;
+    text-align: center;
+    color: var(--color-accent);
+    margin: 0;
+}
+
+.broadcast-status {
+    text-align: center;
+}
+
+.status-indicator {
+    font-size: 0.9em;
+    font-weight: 600;
+    color: #e74c3c;
+}
+
+.broadcast-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.broadcast-btn {
+    padding: 8px 5px;
+    font-size: 0.9em;
+    font-weight: 600;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    background-color: var(--color-accent);
+    color: white;
+    transition: background-color 0.2s;
+}
+
+.broadcast-btn:hover:not(:disabled) {
+    background-color: #2980b9;
+}
+
+/* Media query per schermi più stretti: impila le colonne */
+@media (max-width: 1400px) {
+    .monitor-grid {
+        grid-template-columns: 1fr; 
+    }
+
+    .broadcast-controls {
+        order: 4; /* va in fondo sotto gli altri monitor */
+    }
+}
+
+
+/* ==================================== */
+/* 6. SEZIONE CONNESSIONE (IN BASSO) */
+/* ==================================== */
+
+.connection-card {
+    /*order: 10; /* Sposta in fondo al container */
+    margin-top: 20px;
+    padding: 10px 15px; /* Più compatta */
+    display: flex;
+    gap: 10px;
+    flex-shrink: 0;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.card {
+    background-color: var(--color-primary);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.card-title {
+    font-size: 1.4em;
+    margin-top: 0;
+    margin-bottom: 15px;
+    /*border-bottom: 1px solid rgba(255, 255, 255, 0.1);*/
+    padding-bottom: 5px;
+}
+
+.connection-card h2.card-title {
+    margin: 0;           /* rimuove margini di default */
+    font-size: 1em;      /* più compatto */
+    flex-shrink: 0;      /* non si riduce */
+}
+
+.connection-grid {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex: 1 1 auto;   
+}
+
+.input-field {
+    padding: 6px 8px;
+    font-size: 0.9em;
+    flex: 1 1 auto;
+    min-width: 80px;
+    border: 1px solid #7f8c8d;
+    border-radius: 6px;
+    background-color: #34495e;
+    color: var(--color-text-light);
+}
+
+.btn-connect {
+    flex-shrink: 0;
+    background-color: var(--color-accent);
+    color: white;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-connect:hover:not(:disabled) {
+    background-color: #2980b9;
+}
+
+.btn-connect:disabled {
+    background-color: #7f8c8d;
+    cursor: not-allowed;
+}
+
+
 footer {
     color: #7f8c8d; 
     text-align: center; 
     font-size: 0.8em; 
     margin-top: 20px;
+    flex-shrink: 0;
 }
+
 
 /* ==================================== */
 /* MEDIA QUERIES (Responsive) */
