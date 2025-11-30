@@ -15,6 +15,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const transitionButton = document.getElementById('btn-take');
     const cutButton = document.getElementById('btn-transition-cut');
     const fadeButton = document.getElementById('btn-transition-fade');
+    const recButton = document.getElementById('btn-start-recording');
+    const streamButton = document.getElementById('btn-start-stream');
+    const camButton = document.getElementById('btn-virtual-cam');
+    const recStatus = document.getElementById('recording-status');
+    const streamStatus = document.getElementById('streaming-status');
+    const camStatus = document.getElementById('cam-status');
+    
+    
 
     // Stato locale
     let obsIsConnected = false;
@@ -22,6 +30,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentPreviewScene = null;
     let currentTransition = "Dissolvenza"
     let allScenes = [];
+
+    let recActive = false;
+    let streamActive = false;
+    let camActive = false;
 
     let sceneButtonsRendered = false;
 
@@ -372,6 +384,62 @@ document.addEventListener('DOMContentLoaded', () => {
         currentTransition = "Dissolvenza";
         console.log(`Current transition: ${currentTransition}`);
     });
+
+    recButton.addEventListener('click', () => {
+        if (!recActive) {
+            recButton.classList.add("br-btn-active");
+            recActive = true;
+            recStatus.innerText="● REC attiva";
+            recStatus.classList.add("status-indicator-on");
+            recStatus.classList.remove("status-indicator-off");
+        } else {
+
+            const conferma = confirm("Stai per fermare la registrazione, sei sicuro?");
+            if (!conferma) return;
+            recButton.classList.remove("br-btn-active");
+            recActive = false;
+            recStatus.innerText="● REC non attiva";
+            recStatus.classList.add("status-indicator-off");
+            recStatus.classList.remove("status-indicator-on");
+        }
+    });
+
+    streamButton.addEventListener('click', () => {
+        if (!streamActive) {
+            streamButton.classList.add("br-btn-active");
+            streamActive = true;
+            streamStatus.innerText= "● stream attiva";
+            streamStatus.classList.add("status-indicator-on");
+            streamStatus.classList.remove("status-indicator-off");
+        } else {
+            const conferma = confirm("Stai per fermare lo streaming, sei sicuro?");
+            if (!conferma) return;
+            streamButton.classList.remove("br-btn-active");
+            streamActive = false;
+            streamStatus.innerText ="● stream non attiva";
+            streamStatus.classList.add("status-indicator-off");
+            streamStatus.classList.remove("status-indicator-on");
+        }
+    });
+
+    camButton.addEventListener('click', () => {
+        if (!camActive) {
+            camButton.classList.add("br-btn-active");
+            camActive = true;
+            camStatus.innerText="● cam attiva";
+            camStatus.classList.add("status-indicator-on");
+            camStatus.classList.remove("status-indicator-off");
+        } else {
+            const conferma = confirm("Stai per fermare la cam virtuale, sei sicuro?");
+            if (!conferma) return;
+            camButton.classList.remove("br-btn-active");
+            camActive = false;
+            camStatus.innerText="● cam non attiva";
+            camStatus.classList.add("status-indicator-off");
+            camStatus.classList.remove("status-indicator-on");
+        }
+    });
+
 
     // ---------------------------------------
     // 6. EVENTI IPC

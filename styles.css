@@ -41,10 +41,15 @@ header {
 }
 
 .title {
-    font-size: 2em;
+    font-size: 1.5em;
     font-weight: 700;
     margin: 0;
     color: var(--color-accent);
+}
+
+.appName {
+    font-style: italic;
+    font-size: 2em;
 }
 
 /* ==================================== */
@@ -240,9 +245,9 @@ header {
 
 .scenes-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 350px)); 
+    grid-template-columns: repeat(auto-fit, minmax(180px, 320px)); 
     justify-content: center;
-    gap: 15px;
+    gap: 16px;
     margin-top: 15px;
     flex: 1 1 auto;  
     /*overflow-y: auto;*/
@@ -357,32 +362,42 @@ header {
     text-align: center;
 }
 
-.status-indicator {
+.status-indicator-off {
+    font-size: 0.9em;
+    font-weight: 400;
+    color: var(--color-status-error);
+}
+.status-indicator-on{
     font-size: 0.9em;
     font-weight: 600;
-    color: #e74c3c;
+    color: var(--color-status-ok);
 }
 
 .broadcast-buttons {
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 15px;
 }
 
 .broadcast-btn {
     padding: 8px 5px;
     font-size: 0.9em;
-    font-weight: 600;
+    font-weight: 400;
     border-radius: 6px;
-    border: none;
+    
     cursor: pointer;
-    background-color: var(--color-accent);
+    border-color: var(--color-accent);
+    background-color: var(--color-primary);
     color: white;
     transition: background-color 0.2s;
 }
 
+.br-btn-active {
+    background-color: var(--color-accent);
+}
+
 .broadcast-btn:hover:not(:disabled) {
-    background-color: #2980b9;
+    filter: brightness(1.2);
 }
 
 /* Media query per schermi più stretti: impila le colonne */
