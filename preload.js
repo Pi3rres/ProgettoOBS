@@ -18,6 +18,16 @@ contextBridge.exposeInMainWorld('api', {
     setTransition: (transitionName) => ipcRenderer.invoke('obs:setTransition', transitionName),
     getTransitions: () => ipcRenderer.invoke('obs:getTransitions'),
 
+    // Controlli broadcast
+    startRecording: () => ipcRenderer.invoke("obs-startRecording"),
+    stopRecording: () => ipcRenderer.invoke("obs-stopRecording"),
+
+    startStream: () => ipcRenderer.invoke("obs-startStream"),
+    stopStream: () => ipcRenderer.invoke("obs-stopStream"),
+
+    startVirtualCam: () => ipcRenderer.invoke("obs-startVirtualCam"),
+    stopVirtualCam: () => ipcRenderer.invoke("obs-stopVirtualCam"),
+
     // Event listeners (dal main -> renderer)
     onObsStatusUpdate: (callback) => {
         ipcRenderer.removeAllListeners('obs:statusUpdate');

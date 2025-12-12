@@ -328,6 +328,73 @@ ipcMain.handle('obs:getTransitions', async () => {
     }
 });
 
+
+// START/STOP RECORDING
+
+ipcMain.handle("obs-startRecording", async () => {
+    if (!obsConnected) return { success: false, error: "Not connected" };
+    try {
+        await obs.call("StartRecord");
+        return { success: true };
+    } catch (err) {
+        return { success: false, error: err.message };
+    }
+});
+
+ipcMain.handle("obs-stopRecording", async () => {
+    if (!obsConnected) return { success: false, error: "Not connected" };
+    try {
+        await obs.call("StopRecord");
+        return { success: true };
+    } catch (err) {
+        return { success: false, error: err.message };
+    }
+});
+
+// START/STOP STREAMING
+
+ipcMain.handle("obs-startStream", async () => {
+    if (!obsConnected) return { success: false, error: "Not connected" };
+    try {
+        await obs.call("StartStream");
+        return { success: true };
+    } catch (err) {
+        return { success: false, error: err.message };
+    }
+});
+
+ipcMain.handle("obs-stopStream", async () => {
+    if (!obsConnected) return { success: false, error: "Not connected" };
+    try {
+        await obs.call("StopStream");
+        return { success: true };
+    } catch (err) {
+        return { success: false, error: err.message };
+    }
+});
+
+// START/STOP VIRTUAL CAM
+
+ipcMain.handle("obs-startVirtualCam", async () => {
+    if (!obsConnected) return { success: false, error: "Not connected" };
+    try {
+        await obs.call("StartVirtualCam");
+        return { success: true };
+    } catch (err) {
+        return { success: false, error: err.message };
+    }
+});
+
+ipcMain.handle("obs-stopVirtualCam", async () => {
+    if (!obsConnected) return { success: false, error: "Not connected" };
+    try {
+        await obs.call("StopVirtualCam");
+        return { success: true };
+    } catch (err) {
+        return { success: false, error: err.message };
+    }
+});
+
 // =================================================================
 //  desktopCapturer: ricerca proiettori OBS (più robusta / multi-lingua)
 // =================================================================

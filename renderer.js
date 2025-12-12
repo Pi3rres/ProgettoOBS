@@ -385,8 +385,10 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log(`Current transition: ${currentTransition}`);
     });
 
-    recButton.addEventListener('click', () => {
+    recButton.addEventListener('click', async () => {
         if (!recActive) {
+            const res = await window.api.startRecording();
+            if (!res.success) return alert("Errore: " + res.error);
             recButton.classList.add("br-btn-active");
             recActive = true;
             recStatus.innerText="● REC attiva";
@@ -396,6 +398,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const conferma = confirm("Stai per fermare la registrazione, sei sicuro?");
             if (!conferma) return;
+            const res = await window.api.stopRecording();
+            if (!res.success) return alert("Errore: " + res.error);
             recButton.classList.remove("br-btn-active");
             recActive = false;
             recStatus.innerText="● REC non attiva";
@@ -404,8 +408,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    streamButton.addEventListener('click', () => {
+    streamButton.addEventListener('click', async () => {
         if (!streamActive) {
+            const res = await window.api.startStream();
+            if (!res.success) return alert("Errore: " + res.error);
             streamButton.classList.add("br-btn-active");
             streamActive = true;
             streamStatus.innerText= "● stream attiva";
@@ -414,6 +420,8 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             const conferma = confirm("Stai per fermare lo streaming, sei sicuro?");
             if (!conferma) return;
+            const res = await window.api.stopStream();
+            if (!res.success) return alert("Errore: " + res.error);
             streamButton.classList.remove("br-btn-active");
             streamActive = false;
             streamStatus.innerText ="● stream non attiva";
@@ -422,8 +430,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    camButton.addEventListener('click', () => {
+    camButton.addEventListener('click', async () => {
         if (!camActive) {
+            const res = await window.api.startVirtualCam();
+            if (!res.success) return alert("Errore: " + res.error);
             camButton.classList.add("br-btn-active");
             camActive = true;
             camStatus.innerText="● cam attiva";
@@ -432,6 +442,8 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             const conferma = confirm("Stai per fermare la cam virtuale, sei sicuro?");
             if (!conferma) return;
+            const res = await window.api.stopVirtualCam();
+            if (!res.success) return alert("Errore: " + res.error);
             camButton.classList.remove("br-btn-active");
             camActive = false;
             camStatus.innerText="● cam non attiva";
